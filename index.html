@@ -1,1 +1,191 @@
- <h2>🎧 الاستماع للقرآن</h2>
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>القرآن الكريم |النظيفي الفائز</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Amiri", serif;
+  direction: rtl;
+  background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
+  color: #fff;
+}
+
+header {
+  text-align: center;
+  padding: 40px 20px;
+  background: url("https://i.imgur.com/6IUbEME.jpg") center/cover;
+}
+
+header h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+header p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  background: rgba(0,0,0,0.4);
+}
+
+nav button {
+  background: none;
+  border: none;
+  color: #fff;
+  padding: 15px 25px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+nav button.active {
+  border-bottom: 3px solid gold;
+  color: gold;
+}
+
+section {
+  display: none;
+  padding: 25px;
+  max-width: 900px;
+  margin: auto;
+}
+
+section.active {
+  display: block;
+}
+
+select, audio {
+  width: 100%;
+  margin: 15px 0;
+  padding: 10px;
+  font-size: 16px;
+}
+
+#quranText {
+  font-size: 24px;
+  line-height: 2.2;
+  text-align: center;
+  margin-top: 20px;
+  background: rgba(255,255,255,0.08);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🌙 القرآن الكريم</h1>
+  <p>تصميم رمضاني – استماع وقراءة بخشوع</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showPage('read')">📖 السور مكتوبة</button>
+  <button onclick="showPage('listen')">🎧 الاستماع</button>
+</nav>
+
+<!-- صفحة القراءة -->
+<section id="read" class="active">
+  <h2>📖 قراءة السور</h2>
+  <select id="surahRead"></select>
+  <div id="quranText">اختر سورة للقراءة</div>
+</section>
+
+<!-- صفحة الصوت -->
+<section id="listen">
+  <h2>🎧 الاستماع للقرآن</h2>
+
+  <label>اختر السورة:</label>
+  <select id="surahAudio"></select>
+
+  <label>اختر القارئ:</label>
+  <select id="reciter">
+    <option value="yasser">ياسر الدوسري (حفص)</option>
+    <option value="warsh">قارئ مغربي (ورش عن نافع)</option>
+  </select>
+
+  <audio id="audio" controls></audio>
+</section>
+
+<footer>
+ 
+    🤲  🤲 اللهم اجعله صدقة جارية عن والديّ وجميع المسلمين
+
+    <br>
+
+    © 2026 | القرآن الكريم – تصميم وإعداد: الفائز النظيفي  
+</footer>
+
+<script>
+const surahs = [
+"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة",
+"يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+"الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت",
+"الروم","لقمان","السجدة","الأحزاب","سبإ","فاطر","يس","الصافات","ص","الزمر",
+"غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح",
+"الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد",
+"المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق",
+"التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر",
+"القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار",
+"المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد",
+"الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة",
+"العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون",
+"الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
+];
+
+function fillSelect(id){
+  const s = document.getElementById(id);
+  surahs.forEach((n,i)=>{
+    let o=document.createElement("option");
+    o.value=i+1;
+    o.text=(i+1)+" - "+n;
+    s.appendChild(o);
+  });
+}
+fillSelect("surahRead");
+fillSelect("surahAudio");
+
+document.getElementById("surahRead").onchange=function(){
+  fetch("https://api.alquran.cloud/v1/surah/"+this.value)
+  .then(r=>r.json())
+  .then(d=>{
+    quranText.innerHTML=d.data.ayahs.map(a=>a.text).join(" ۝ ");
+  });
+};
+
+document.getElementById("surahAudio").onchange=playAudio;
+document.getElementById("reciter").onchange=playAudio;
+
+function playAudio(){
+  let s=document.getElementById("surahAudio").value.padStart(3,"0");
+  let r=document.getElementById("reciter").value;
+  let url = r==="yasser"
+    ? "https://server11.mp3quran.net/yasser/"+s+".mp3"
+    : "https://server10.mp3quran.net/warsh/"+s+".mp3";
+  audio.src=url;
+}
+
+function showPage(id){
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  event.target.classList.add("active");
+}
+</script>
+
+</body>
+</html>
