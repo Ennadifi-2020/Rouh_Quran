@@ -10,108 +10,76 @@ body {
   font-family: "Amiri", serif;
   direction: rtl;
   color: #fff;
-  background: linear-gradient(180deg,
-    #0b1d26,   /* أزرق داكن مثل surahquran */
-    #12323f,
-    #1b4d3e,   /* أخضر قرآني */
-    #0f3d2e
-  );
+  background: linear-gradient(180deg,#0b1d26,#12323f,#1b4d3e,#0f3d2e);
+  transition: background 0.5s, color 0.5s;
+}
+
+body.light {
+  background: linear-gradient(180deg,#e0f7fa,#b2ebf2,#80deea,#4dd0e1);
+  color: #000;
 }
 
 header {
   text-align: center;
   padding: 50px 20px;
-  background: linear-gradient(
-    rgba(0,0,0,.6),
-    rgba(0,0,0,.6)
-  ),
-  url("https://i.imgur.com/8Km9tLL.jpg") center/cover;
+  background: linear-gradient(rgba(0,0,0,.6), rgba(0,0,0,.6)), url("https://i.imgur.com/8Km9tLL.jpg") center/cover;
+  transition: background 0.5s;
 }
 
-header h1 {
-  font-size: 38px;
-  margin-bottom: 10px;
-  color: #a8ffcf;
+header.light {
+  background: linear-gradient(rgba(255,255,255,.4), rgba(255,255,255,.4)), url("https://i.imgur.com/8Km9tLL.jpg") center/cover;
 }
 
-header p {
-  font-size: 18px;
-  opacity: .9;
-}
+header h1 { font-size: 38px; margin-bottom: 10px; color: #a8ffcf; }
+header.light h1 { color: #00695c; }
 
+header p { font-size: 18px; opacity: .9; }
 nav {
   display: flex;
   justify-content: center;
   background: rgba(0,0,0,.45);
 }
-
 nav button {
-  background: none;
-  border: none;
-  color: #fff;
-  padding: 15px 25px;
-  font-size: 18px;
-  cursor: pointer;
+  background: none; border: none; color: #fff;
+  padding: 15px 25px; font-size: 18px; cursor: pointer;
+  transition: color 0.3s, border-bottom 0.3s;
 }
-
-nav button.active {
-  border-bottom: 3px solid #3ddc97;
-  color: #3ddc97;
+nav button.active { border-bottom: 3px solid #3ddc97; color: #3ddc97; }
+section { display: none; padding: 25px; max-width: 950px; margin: auto; }
+section.active { display: block; }
+select, input, audio { width: 100%; margin: 15px 0; padding: 12px; font-size: 16px; border-radius: 8px; border: none; }
+#quranText { font-size: 24px; line-height: 2.3; text-align: center; margin-top: 20px; background: rgba(255,255,255,.08); padding: 25px; border-radius: 12px; }
+footer { text-align: center; padding: 20px; font-size: 14px; opacity: .85; }
+@media (max-width:768px){
+  header h1{ font-size:32px; }
+  nav button{ padding:12px 18px; font-size:16px; }
+  #quranText{ font-size:20px; padding:15px; }
 }
-
-section {
-  display: none;
-  padding: 25px;
-  max-width: 950px;
-  margin: auto;
-}
-
-section.active {
-  display: block;
-}
-
-select, audio {
-  width: 100%;
-  margin: 15px 0;
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: none;
-}
-
-#quranText {
-  font-size: 24px;
-  line-height: 2.3;
-  text-align: center;
-  margin-top: 20px;
-  background: rgba(255,255,255,.08);
-  padding: 25px;
-  border-radius: 12px;
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 14px;
-  opacity: .85;
-}
+.search-container{ display:flex; flex-direction:column; align-items:center; margin:15px 0; }
+.search-container input{ max-width:400px; text-align:center; font-size:16px; padding:10px; border-radius:8px; border:none; }
 </style>
 </head>
 
 <body>
 
-<header>
+<header id="header">
   <h1>🌙 القرآن الكريم</h1>
   <p>تلاوات خاشعة – قراءة واستماع بخشوع</p>
+  <button onclick="toggleMode()" style="margin-top:10px; padding:8px 15px; border:none; border-radius:8px; cursor:pointer;">🌗 تبديل الوضع</button>
 </header>
 
 <nav>
-  <button class="active" onclick="showPage('read')">📖 القراءة</button>
-  <button onclick="showPage('listen')">🎧 الاستماع</button>
+  <button class="active" onclick="showPage('read', this)">📖 القراءة</button>
+  <button onclick="showPage('listen', this)">🎧 الاستماع</button>
 </nav>
 
 <section id="read" class="active">
   <h2>📖 السور مكتوبة</h2>
+  
+  <div class="search-container">
+    <input type="text" id="searchSurah" placeholder="ابحث باسم السورة">
+  </div>
+  
   <select id="surahRead"></select>
   <div id="quranText">اختر سورة</div>
 </section>
@@ -124,35 +92,30 @@ footer {
 
   <label>القارئ:</label>
   <select id="reciter">
-
-    <!-- 🇲🇦 قراء مغاربة (ورش) -->
     <optgroup label="🇲🇦 قراء مغاربة – ورش">
-      <option value="warsh/omaralkazabri">عمر القزابري</option>
-      <option value="warsh/abdelkbir">عبد الكبير عبد الصمد</option>
-      <option value="warsh/yassin">ياسين الجزائري</option>
-      <option value="warsh/hicham">هشام الكتامي</option>
-      <option value="warsh/eddokali">محمد الدكالي</option>
+      <option value="warsh/omar_alkazabri">عمر القزابري</option>
+      <option value="warsh/yassin_jazairi">ياسين الجزائري</option>
+      <option value="warsh/said_lahmid">سعيد لحميدي</option>
+      <option value="warsh/mohamed_refai">محمد الرفاعي</option>
+      <option value="warsh/abdelkader">عبد القادر بن صالح</option>
     </optgroup>
-
-    <!-- 🌍 قراء عرب (حفص) -->
     <optgroup label="🌍 قراء عرب – حفص">
       <option value="yasser">ياسر الدوسري</option>
-      <option value="sudais">عبد الرحمن السديس</option>
-      <option value="shuraim">سعود الشريم</option>
       <option value="maher">ماهر المعيقلي</option>
       <option value="ajmy">أحمد العجمي</option>
-      <option value="husary">الحصري</option>
+      <option value="sudais">عبد الرحمن السديس</option>
+      <option value="shuraim">سعود الشريم</option>
       <option value="basit">عبد الباسط عبد الصمد</option>
       <option value="minshawi">المنشاوي</option>
+      <option value="husary">الحصري</option>
       <option value="ghamdi">سعد الغامدي</option>
-      <option value="juhany">محمد أيوب</option>
       <option value="tablawy">الطبلاوي</option>
+      <option value="juhany">محمد أيوب</option>
       <option value="refai">هاني الرفاعي</option>
       <option value="muaiqly">علي جابر</option>
       <option value="qasim">قاسم الشايع</option>
       <option value="salman">سلمان العتيبي</option>
     </optgroup>
-
   </select>
 
   <audio id="audio" controls></audio>
@@ -161,49 +124,86 @@ footer {
 <footer>
   🤲 اللهم اجعله صدقة جارية  
   <br>
-  © 2026 | إعداد الفائز النظيفي
+  © 2026 | إعداد: الفائز النظيفي
 </footer>
 
 <script>
-const surahs = [...Array(114).keys()].map(i=>i+1);
+// ملء السور
+const surahs = [
+"الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة",
+"يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+"الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت",
+"الروم","لقمان","السجدة","الأحزاب","سبإ","فاطر","يس","الصافات","ص","الزمر",
+"غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح",
+"الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد",
+"المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق",
+"التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر",
+"القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار",
+"المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد",
+"الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة",
+"العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون",
+"الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"
+];
 
 function fillSelect(id){
-  const s=document.getElementById(id);
-  surahs.forEach(n=>{
-    let o=document.createElement("option");
-    o.value=n;
-    o.text="سورة رقم "+n;
+  const s = document.getElementById(id);
+  surahs.forEach((name,i)=>{
+    let o = document.createElement("option");
+    o.value = i+1;
+    o.text = (i+1) + " - " + name;
     s.appendChild(o);
   });
 }
 fillSelect("surahRead");
 fillSelect("surahAudio");
 
-surahRead.onchange=function(){
+// عرض السور مع الآيات وأرقامها
+surahRead.onchange = function(){
   fetch("https://api.alquran.cloud/v1/surah/"+this.value)
   .then(r=>r.json())
   .then(d=>{
-    quranText.innerHTML=d.data.ayahs.map(a=>a.text).join(" ۝ ");
+    quranText.innerHTML = d.data.ayahs.map(a=>`${a.numberInSurah} ۝ ${a.text}`).join("<br>");
   });
 };
 
-surahAudio.onchange=playAudio;
-reciter.onchange=playAudio;
+// البحث باسم السورة
+searchSurah.oninput = function(){
+  const val = this.value.trim();
+  surahRead.innerHTML = "";
+  surahs.forEach((name,i)=>{
+    if(name.includes(val) || (i+1).toString() === val){
+      let o = document.createElement("option");
+      o.value = i+1;
+      o.text = (i+1) + " - " + name;
+      surahRead.appendChild(o);
+    }
+  });
+};
 
+// الصوت
+surahAudio.onchange = playAudio;
+reciter.onchange = playAudio;
 function playAudio(){
-  let s=surahAudio.value.toString().padStart(3,"0");
-  let r=reciter.value;
-  let url = r.includes("warsh")
-    ? "https://server10.mp3quran.net/"+r+"/"+s+".mp3"
-    : "https://server11.mp3quran.net/"+r+"/"+s+".mp3";
-  audio.src=url;
+  let s = surahAudio.value.toString().padStart(3,"0");
+  let r = reciter.value;
+  let url = r.startsWith("warsh")
+    ? "https://server10.mp3quran.net/" + r + "/" + s + ".mp3"
+    : "https://server11.mp3quran.net/" + r + "/" + s + ".mp3";
+  audio.src = url;
 }
 
-function showPage(id){
+// التنقّل بين الصفحات
+function showPage(id, btn){
   document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
   document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  event.target.classList.add("active");
+  btn.classList.add("active");
+}
+
+// وضع ليلي / نهاري
+function toggleMode(){
+  document.body.classList.toggle("light");
+  document.getElementById("header").classList.toggle("light");
 }
 </script>
 
